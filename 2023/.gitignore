@@ -1,0 +1,18 @@
+# IntelliJ
+
+## User specific stuff
+.idea/
+
+# SBT
+target/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
+.bsp/
+
+#Scala
+*.class
+*.log
+hs_err_pid*
