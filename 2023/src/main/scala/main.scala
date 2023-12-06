@@ -9,4 +9,5 @@ import scala.io.Source
     bufferedSource.close()
 
     day match {
+        case 1 => println(day1(lines, part))
     }
