@@ -1,9 +1,27 @@
+import scala.annotation.tailrec
+
 private val pattern = "(\\w+) = \\((\\w+), (\\w+)\\)".r
 
-extension [K, V](map: Map[K, V])
-    def fetch(key: K): (K, V) = key -> map(key)
+@tailrec
+def gcd(a: BigInt, b: BigInt): BigInt =
+    if (b == 0) a.abs
+    else gcd(b, a % b)
 
-def day8(lines: List[String], part: Int = 1): Int =
+def lcm(list: Seq[BigInt]): BigInt =
+    list.foldLeft(BigInt(1))((a, b) => (a / gcd(a, b)) * b)
+
+def countSteps(nodes: Map[String, (String, String)], sequence: List[Int], start: String, goal: String): Int =
+    var node = start
+    var steps = 0
+    while !node.endsWith(goal) do
+        node = sequence(steps % sequence.size) match {
+            case 0 => nodes(node)(0)
+            case 1 => nodes(node)(1)
+        }
+        steps += 1
+    steps
+
+def day8(lines: List[String], part: Int = 1): BigInt =
     val sequence = lines.head.map {
         case 'L' => 0
         case 'R' => 1
@@ -15,27 +33,13 @@ def day8(lines: List[String], part: Int = 1): Int =
     }.toMap
 
     if part == 1 then
-        var node = nodes.fetch("AAA")
-        var total = 0
-        while node._1 != "ZZZ" do
-            node = sequence(total % sequence.size) match {
-                case 0 => nodes.fetch(node._2._1)
-                case 1 => nodes.fetch(node._2._2)
-            }
-            total += 1
-
-        total
+        countSteps(nodes, sequence, "AAA", "ZZZ")
     else
-        var currentNodes = nodes.keySet.filter(_.endsWith("A")).map(nodes.fetch)
-        var total = 0
-        while !currentNodes.forall(_._1.endsWith("Z")) do
-            currentNodes = currentNodes.map { node =>
-                sequence(total % sequence.size) match {
-                    case 0 => nodes.fetch(node._2._1)
-                    case 1 => nodes.fetch(node._2._2)
-                }
-            }
-
-            total += 1
-
-        total
+        // With the help of internet to know I had to use the LCM
+        val steps = nodes
+            .keySet
+            .filter(_.endsWith("A"))
+            .map(node => countSteps(nodes, sequence, node, "Z"))
+            .map(BigInt(_))
+            .toSeq
+        lcm(steps)
