@@ -44,9 +44,9 @@ private case class Hand(cards: Seq[Card], bid: Int):
             val possibilities = (1 to 10).map(Card(_)) :++ (12 to 14).map(Card(_))
 
             possibilities
-                .map { possibility =>
-                    cards.map { card => if card == Card(1) then possibility else card }
-                }
+                .map(possibility =>
+                    cards.map(card => if card == Card(1) then possibility else card)
+                )
                 .distinct
                 .map(getHandType)
                 .minBy(_.ordinal)
@@ -55,21 +55,24 @@ private case class Hand(cards: Seq[Card], bid: Int):
 
     infix def handSorter(other: Hand): Boolean =
         if handType == other.handType then
-            cards.zip(other.cards).map((c1, c2) => c1.value - c2.value).find(_ != 0).get > 0
+            cards
+                .zip(other.cards)
+                .map(_.value - _.value)
+                .find(_ != 0)
+                .get > 0
         else
             handType.ordinal < other.handType.ordinal
 
 def day7(lines: List[String], part: Int = 1): Int =
     val useJokers = part == 2
-    val bids = lines
-        .map(_.split(" "))
-        .map(line => Hand(line.head.map(Card.from(_, useJokers)), line.last.toInt))
 
     implicit val ord: Ordering[Hand] = Ordering.fromLessThan(_ handSorter _)
 
-    bids
+    lines
+        .map(_.split(" "))
+        .map(line => Hand(line.head.map(Card.from(_, useJokers)), line.last.toInt))
         .sorted
         .reverse
         .zipWithIndex
-        .map { case (hand, i) => hand.bid * (i + 1) }
+        .map((hand, i) => hand.bid * (i + 1))
         .sum

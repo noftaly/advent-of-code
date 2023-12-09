@@ -15,10 +15,10 @@ private case class NumberWord(location: SpanLocation, tokens: Seq[NumberToken], 
 private class TokenMap(lines: List[String]):
     val map: List[List[Token]] = lines
         .zipWithIndex
-        .map { case (line, i) =>
+        .map { (line, i) =>
             line
                 .zipWithIndex
-                .map { case (char, j) =>
+                .map { (char, j) =>
                     char match {
                         case char if char.isDigit => NumberToken(Location(i, j), char, char.asDigit)
                         case char@'.' => VoidToken(Location(i, j), char)
@@ -66,9 +66,9 @@ private class TokenMap(lines: List[String]):
                     && tok.location.line >= lineMin
                     && tok.location.line <= lineMax
                     && (
-                    if (tok.location.line == location.line)
-                        tok.location.column < location.column._1 || tok.location.column > location.column._2
-                    else true
+                        if (tok.location.line == location.line)
+                            tok.location.column < location.column._1 || tok.location.column > location.column._2
+                        else true
                     )
             )
 

@@ -1,5 +1,3 @@
-import scala.annotation.tailrec
-
 private val pattern = "(\\w+) = \\((\\w+), (\\w+)\\)".r
 
 extension [K, V](map: Map[K, V])

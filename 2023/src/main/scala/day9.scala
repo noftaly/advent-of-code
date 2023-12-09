@@ -14,9 +14,9 @@ def day9(lines: List[String], part: Int = 1): Int =
 
     if part == 1 then
         sequences
-            .map(_.foldRight(0) { case (list, acc) => acc + list.last })
+            .map(_.foldRight(0) { (list, acc) => acc + list.last })
             .sum
     else
         sequences
-            .map(_.foldRight(0) { case (list, acc) => list.head - acc })
+            .map(_.foldRight(0) { (list, acc) => list.head - acc })
             .sum
