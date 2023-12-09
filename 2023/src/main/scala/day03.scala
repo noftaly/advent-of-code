@@ -1,5 +1,6 @@
 private case class SpanLocation(line: Int, column: (Int, Int))
-private case class Location(line: Int, column: Int)
+private case class Location(line: Int, column: Int):
+    val west: Location = Location(line, column - 1)
 
 private sealed trait Token {
     def location: Location
@@ -28,29 +29,34 @@ private class TokenMap(lines: List[String]):
                 .toList
         }
 
-    val words: List[NumberWord] = {
-        var tmpWords = List[NumberWord]()
-        for line <- map do
-            var i = 0
-            while i < line.size do
-                line(i) match {
-                    case NumberToken(location, representation, number) =>
-                        var tokens = List[NumberToken](line(i).asInstanceOf[NumberToken])
-                        i += 1
-                        while line.lift(i).isDefined && line(i).isInstanceOf[NumberToken] do
-                            tokens :+= line(i).asInstanceOf[NumberToken]
-                            i += 1
+    private def isNumberToken(location: Location): Boolean =
+        map
+            .lift(location.line)
+            .flatMap(_.lift(location.column)) match {
+                case Some(NumberToken(_, _, _)) => true
+                case _ => false
+            }
 
-                        val span = SpanLocation(
-                            tokens.head.location.line,
-                            (tokens.head.location.column, tokens.last.location.column)
-                        )
-                        val num = tokens.map(_.number).mkString("").toInt
-                        tmpWords :+= NumberWord(span, tokens, num)
-                    case _ => i += 1
-                }
-        tmpWords
-    }
+    val words: List[NumberWord] =
+        map
+            .flatten
+            .filter {
+                // If our left neighbor is a number token, then we are not at the beginning of a new word so we skip
+                case NumberToken(location, _, _) => !isNumberToken(location.west)
+                case _ => false
+            }
+            .map { case NumberToken(Location(line, col), _, _) =>
+                val upTo = Iterator.iterate(col)(_ + 1)
+                    .takeWhile(idx => isNumberToken(Location(line, idx)))
+                    .toList
+                    .last
+
+                val span = SpanLocation(line, (col, upTo))
+                val tokens = map(line).slice(col, upTo + 1).map(_.asInstanceOf[NumberToken])
+                val num = tokens.map(_.number).mkString.toInt
+
+                NumberWord(span, tokens, num)
+            }
 
     def tokensAround(location: SpanLocation): List[Token] =
         val colMin = Math.max(location.column._1 - 1, 0)
@@ -97,15 +103,9 @@ def day3(lines: List[String], part: Int = 1): Int =
                     }
             }
             .filter(_._2.isDefined)
-            // Group by the star so we get our clusters
-            .groupBy(_._2.get)
-            .view
-            .mapValues(_.map(_._1))
-            // Remove clusters where the size != 2
-            .filter(_._2.size == 2)
-            // Compute the "gear ratio"
-            .mapValues(cluster => cluster.map(_.number))
-            .mapValues(cluster => cluster.product)
+            .groupBy(_._2.get)       // Group by the star so we get our clusters
             .values
-            // Sum the gear ratios
+            .map(_.map(_._1.number)) // Get the number value of each word
+            .filter(_.size == 2)      // Remove clusters where the size != 2
+            .map(_.product)          // Compute the "gear ratio"
             .sum
