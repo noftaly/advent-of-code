@@ -1,15 +1,15 @@
 private case class SpanLocation(line: Int, column: (Int, Int))
-private case class Location(line: Int, column: Int):
-    val west: Location = Location(line, column - 1)
+private case class TokenLocation(line: Int, column: Int):
+    val west: TokenLocation = TokenLocation(line, column - 1)
 
 private sealed trait Token {
-    def location: Location
+    def location: TokenLocation
     def representation: Char
 }
 
-private case class NumberToken(location: Location, representation: Char, number: Int) extends Token
-private case class SymbolToken(location: Location, representation: Char) extends Token
-private case class VoidToken(location: Location, representation: Char) extends Token
+private case class NumberToken(location: TokenLocation, representation: Char, number: Int) extends Token
+private case class SymbolToken(location: TokenLocation, representation: Char) extends Token
+private case class VoidToken(location: TokenLocation, representation: Char) extends Token
 
 private case class NumberWord(location: SpanLocation, tokens: Seq[NumberToken], number: Int)
 
@@ -21,15 +21,15 @@ private class TokenMap(lines: List[String]):
                 .zipWithIndex
                 .map { (char, j) =>
                     char match {
-                        case char if char.isDigit => NumberToken(Location(i, j), char, char.asDigit)
-                        case char@'.' => VoidToken(Location(i, j), char)
-                        case symbol => SymbolToken(Location(i, j), symbol)
+                        case char if char.isDigit => NumberToken(TokenLocation(i, j), char, char.asDigit)
+                        case char@'.' => VoidToken(TokenLocation(i, j), char)
+                        case symbol => SymbolToken(TokenLocation(i, j), symbol)
                     }
                 }
                 .toList
         }
 
-    private def isNumberToken(location: Location): Boolean =
+    private def isNumberToken(location: TokenLocation): Boolean =
         map
             .lift(location.line)
             .flatMap(_.lift(location.column)) match {
@@ -45,9 +45,9 @@ private class TokenMap(lines: List[String]):
                 case NumberToken(location, _, _) => !isNumberToken(location.west)
                 case _ => false
             }
-            .map { case NumberToken(Location(line, col), _, _) =>
+            .map { case NumberToken(TokenLocation(line, col), _, _) =>
                 val upTo = Iterator.iterate(col)(_ + 1)
-                    .takeWhile(idx => isNumberToken(Location(line, idx)))
+                    .takeWhile(idx => isNumberToken(TokenLocation(line, idx)))
                     .toList
                     .last
 

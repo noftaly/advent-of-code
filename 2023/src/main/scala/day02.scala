@@ -1,6 +1,6 @@
 import cats.implicits._
 
-private case class Game(id: Int, sets: Seq[Map[String, Int]])
+private case class CubeGame(id: Int, sets: Seq[Map[String, Int]])
 
 private val pattern = "^Game (\\d+): (.*)$".r
 
@@ -14,7 +14,7 @@ def day2(lines: List[String], part: Int = 1): Int =
                 .map(_.split(" "))
                 .map(item => item(1) -> item(0).toInt)
                 .toMap)
-        Game(gameId.toInt, sets)
+        CubeGame(gameId.toInt, sets)
     }
 
     if part == 1 then
