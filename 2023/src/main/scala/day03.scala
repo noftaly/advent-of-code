@@ -95,17 +95,17 @@ def day3(lines: List[String], part: Int = 1): Int =
     else
         tokenMap.words
             // Get all the stars around each word
-            .map { word =>
+            .map(word =>
                 word -> tokenMap.tokensAround(word.location)
                     .find {
                         case SymbolToken(_, '*') => true
                         case _ => false
                     }
-            }
-            .filter(_._2.isDefined)
-            .groupBy(_._2.get)       // Group by the star so we get our clusters
+            )
+            .filter((word, starAround) => starAround.isDefined)
+            .groupBy((word, starAround) => starAround.get)       // Group by the star so we get our clusters
             .values
             .map(_.map(_._1.number)) // Get the number value of each word
-            .filter(_.size == 2)      // Remove clusters where the size != 2
-            .map(_.product)          // Compute the "gear ratio"
+            .filter(cluster => cluster.size == 2)      // Remove clusters where the size != 2
+            .map(cluster => cluster.product)          // Compute the "gear ratio"
             .sum
