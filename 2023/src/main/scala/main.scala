@@ -1,7 +1,7 @@
 import scala.io.Source
 
 @main def main: Unit =
-    val day = 10
+    val day = 11
     val part = 1
 
     val bufferedSource = Source.fromResource(s"input$day.txt")
@@ -18,4 +18,5 @@ import scala.io.Source
         case 8 => println(day8(lines, part))
         case 9 => println(day9(lines, part))
         case 10 => println(day10(lines, part))
+        case 11 => println(day11(lines, part))
     }
