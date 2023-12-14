@@ -84,3 +84,36 @@ def nbDifferences(a: Seq[String], b: Seq[String]): Int =
         .zipWithIndex
         .map((str, i) => str.zipWithIndex.count((char, j) => b(i).charAt(j) != char))
         .sum
+
+case class PatternStart[A](index: Int, list: LazyList[A])
+
+/*
+ * Returns cycle offset, period
+ */
+def detectCycle[A](it: Iterator[A], patternRepetitions: Int = 3): Option[(Int, Int)] =
+     def hasRepetition(list: LazyList[A], index: Int)(start: PatternStart[A]): Boolean =
+         val size = (index - start.index) * patternRepetitions
+         list.take(size) == start.list.take(size)
+
+     @tailrec
+     def detectCycleRec(list: LazyList[A], seen: Map[A, IndexedSeq[PatternStart[A]]], index: Int): Option[(Int, Int)] =
+         if list.isEmpty then
+             None
+         else
+             val element = list.head
+             val result = for
+                 starts <- seen.get(element)
+                 start <- starts.find(hasRepetition(list, index))
+             yield (start.index, index - start.index)
+
+             result match {
+                 case found @ Some(_) => found
+                 case None => detectCycleRec(
+                     list.tail,
+                     seen + (element -> seen.getOrElse(element, IndexedSeq.empty).appended(PatternStart(index, list))),
+                     index + 1
+                 )
+             }
+
+     detectCycleRec(LazyList.from(it), Map.empty, 0)
+
