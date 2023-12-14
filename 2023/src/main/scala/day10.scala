@@ -1,32 +1,13 @@
-private case class TileLocation(line: Int, column: Int)
-
-private enum TileDirection:
-    case North, South, East, West
-
-    def opposite: TileDirection = this match
-        case North => South
-        case South => North
-        case East => West
-        case West => East
-
-private object TileDirection:
-    val combinations: Seq[(TileDirection, TileDirection)] =
-        for {
-            (d1, i) <- TileDirection.values.zipWithIndex
-            (d2, j) <- TileDirection.values.zipWithIndex
-            if d1 != d2 && i < j // Ensuring only one of the reversed pairs is included
-        } yield (d1, d2)
-
-import TileDirection._
+import Direction._
 
 private sealed trait Tile {
-    def location: TileLocation
+    def location: Location
 }
-private case class Ground(location: TileLocation) extends Tile
-private case class Start(location: TileLocation) extends Tile
-private case class Pipe(location: TileLocation, direction: (TileDirection, TileDirection)) extends Tile
+private case class Ground(location: Location) extends Tile
+private case class Start(location: Location) extends Tile
+private case class Pipe(location: Location, direction: (Direction, Direction)) extends Tile
 
-private case class Position(tile: Tile, direction: TileDirection)
+private case class Position(tile: Tile, direction: Direction)
 
 private class Grid(lines: Seq[String]):
     val map: Seq[Seq[Tile]] = lines
@@ -35,14 +16,14 @@ private class Grid(lines: Seq[String]):
             line
                 .zipWithIndex
                 .map {
-                    case ('.', j) => Ground(TileLocation(i, j))
-                    case ('S', j) => Start(TileLocation(i, j))
-                    case ('|', j) => Pipe(TileLocation(i, j), (North, South))
-                    case ('-', j) => Pipe(TileLocation(i, j), (East, West))
-                    case ('J', j) => Pipe(TileLocation(i, j), (North, West))
-                    case ('7', j) => Pipe(TileLocation(i, j), (South, West))
-                    case ('F', j) => Pipe(TileLocation(i, j), (South, East))
-                    case ('L', j) => Pipe(TileLocation(i, j), (North, East))
+                    case ('.', j) => Ground(Location(i, j))
+                    case ('S', j) => Start(Location(i, j))
+                    case ('|', j) => Pipe(Location(i, j), (North, South))
+                    case ('-', j) => Pipe(Location(i, j), (East, West))
+                    case ('J', j) => Pipe(Location(i, j), (North, West))
+                    case ('7', j) => Pipe(Location(i, j), (South, West))
+                    case ('F', j) => Pipe(Location(i, j), (South, East))
+                    case ('L', j) => Pipe(Location(i, j), (North, East))
                     case (tile, j) => throw new IllegalArgumentException(s"Unexpected tile $tile at $i,$j")
                 }
         )
@@ -56,13 +37,13 @@ private class Grid(lines: Seq[String]):
         .get
 
     val startPipe: Pipe =
-         TileDirection
+         Direction
              .combinations
              .map(Pipe(start.location, _))
              .filter(getConnectedPipes(_).size == 2)
              .head
 
-    def getNeighbors(location: TileLocation): Seq[Position] =
+    def getNeighbors(location: Location): Seq[Position] =
         map
             .flatten
             .map(tile =>

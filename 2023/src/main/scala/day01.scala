@@ -1,28 +1,4 @@
-private def findFirstAmong(str: String, occurrences: Seq[String]): String =
-    var min = Int.MaxValue
-    var minValue = ""
-
-    for word <- occurrences do
-        val a = str.indexOf(word)
-        if a != -1 && a < min then
-            min = a
-            minValue = word
-
-    minValue
-
-private def findLastAmong(str: String, occurrences: Seq[String]): String =
-    var max = Int.MinValue
-    var maxValue = ""
-
-    for word <- occurrences do
-        val a = str.lastIndexOf(word)
-        if a != -1 && a > max then
-            max = a
-            maxValue = word
-
-    maxValue
-
-private def spelledOutToInt(str: String): Int =
+def spelledOutToInt(str: String): Int =
     str.replace("zero", "0")
         .replace("one", "1")
         .replace("two", "2")

@@ -1,18 +1,3 @@
-/**
- * Split a given list at the given predicate. eg: A, B, C, D, C, E; if you split at "C" you get AB, D, E
- */
-private def splitListAt[A](list: List[A], predicate: A => Boolean): List[List[A]] =
-    list.span(predicate) match {
-        case (prefix, suffix) if suffix.nonEmpty => prefix :: splitListAt(suffix.drop(1), predicate)
-        case (prefix, _) => List(prefix)
-    }
-
-private def nbDifferences(a: Seq[String], b: Seq[String]): Int =
-    a
-        .zipWithIndex
-        .map((str, i) => str.zipWithIndex.count((char, j) => b(i).charAt(j) != char))
-        .sum
-
 private def verticalReflection(pattern: Seq[String], tolerance: Int): Int =
     (1 until pattern.head.length)
         .find(sep =>

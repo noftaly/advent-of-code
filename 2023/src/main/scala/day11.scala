@@ -2,9 +2,6 @@ private case class Galaxy(line: Int, column: Int):
     infix def distanceFrom(other: Galaxy): Int =
         (other.line - line).abs + (other.column - column).abs
 
-private def between(num: Int, a: Int, b: Int): Boolean =
-    num < Math.max(a, b) && num > Math.min(a, b)
-
 def day11(lines: List[String], part: Int = 1): BigInt =
     val galaxies = lines
         .zipWithIndex
@@ -35,8 +32,8 @@ def day11(lines: List[String], part: Int = 1): BigInt =
         .map(pair =>
             val Seq(g1, g2) = pair: @unchecked
             val distance = BigInt(g1 distanceFrom g2)
-            val expansionRow = emptyRowIndices.count(between(_, g1.line, g2.line))
-            val expansionCol = emptyColIndices.count(between(_, g1.column, g2.column))
+            val expansionRow = emptyRowIndices.count(isBetween(_, g1.line, g2.line))
+            val expansionCol = emptyColIndices.count(isBetween(_, g1.column, g2.column))
             distance + BigInt(expansionRow) * factor + BigInt(expansionCol) * factor
         )
         .sum

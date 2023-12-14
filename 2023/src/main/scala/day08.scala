@@ -1,14 +1,4 @@
-import scala.annotation.tailrec
-
 private val pattern = "(\\w+) = \\((\\w+), (\\w+)\\)".r
-
-@tailrec
-def gcd(a: BigInt, b: BigInt): BigInt =
-    if (b == 0) a.abs
-    else gcd(b, a % b)
-
-def lcm(list: Seq[BigInt]): BigInt =
-    list.foldLeft(BigInt(1))((a, b) => (a / gcd(a, b)) * b)
 
 def countSteps(nodes: Map[String, (String, String)], sequence: List[Int], start: String, goal: String): Int =
     var node = start
