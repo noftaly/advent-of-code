@@ -42,6 +42,9 @@ case class Location(line: Int, column: Int):
     def isWithin(a: Location, b: Location): Boolean =
         line >= a.line && line < b.line && column >= a.column && column < b.column
 
+trait Tile:
+    def location: Location
+
 enum Direction:
     case North, South, East, West
 

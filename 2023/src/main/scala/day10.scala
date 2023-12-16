@@ -1,8 +1,5 @@
 import Direction._
 
-private sealed trait Tile {
-    def location: Location
-}
 private case class Ground(location: Location) extends Tile
 private case class Start(location: Location) extends Tile
 private case class Pipe(location: Location, direction: (Direction, Direction)) extends Tile
