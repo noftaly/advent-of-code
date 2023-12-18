@@ -13,6 +13,7 @@ import scala.io.Source
         case 2 => println(day2(lines, part))
         case 3 => println(day3(lines, part))
         case 4 => println(day4(lines, part))
+        case 5 => println(day5(lines, part))
         case 6 => println(day6(lines, part))
         case 7 => println(day7(lines, part))
         case 8 => println(day8(lines, part))
