@@ -26,21 +26,29 @@ def findLastAmong(str: String, occurrences: Seq[String]): String =
 
 case class Span(line: Int, column: (Int, Int))
 case class Location(line: Int, column: Int):
-    def west: Location = Location(line, column - 1)
-    def east: Location = Location(line, column + 1)
-    def north: Location = Location(line - 1, column)
-    def south: Location = Location(line + 1, column)
+    def west(distance: Int = 1): Location = Location(line, column - distance)
+    def east(distance: Int = 1): Location = Location(line, column + distance)
+    def north(distance: Int = 1): Location = Location(line - distance, column)
+    def south(distance: Int = 1): Location = Location(line + distance, column)
+    def west: Location = west()
+    def east: Location = east()
+    def north: Location = north()
+    def south: Location = south()
 
-    def go(direction: Direction): Location = direction match {
-        case Direction.North => north
-        case Direction.South => south
-        case Direction.West => west
-        case Direction.East => east
+    def neighbors: Set[Location] = Set(west, east, north, south)
+
+    def go(direction: Direction, distance: Int = 1): Location = direction match {
+        case Direction.North => north(distance)
+        case Direction.South => south(distance)
+        case Direction.West => west(distance)
+        case Direction.East => east(distance)
     }
 
     def isPositive: Boolean = line >= 0 && column >= 0
     def isWithin(a: Location, b: Location): Boolean =
         line >= a.line && line < b.line && column >= a.column && column < b.column
+
+case class Step(direction: Direction, distance: Int)
 
 trait Tile:
     def location: Location
@@ -120,3 +128,21 @@ def detectCycle[A](it: Iterator[A], patternRepetitions: Int = 3): Option[(Int, I
 
      detectCycleRec(LazyList.from(it), Map.empty, 0)
 
+def generateVertices(instructions: List[Step]): List[Location] =
+    instructions.foldLeft(List(Location(0, 0))) { (vertices, instruction) =>
+        val lastLocation = vertices.last
+        val newLocation = lastLocation.go(instruction.direction, instruction.distance)
+        vertices :+ newLocation
+    }
+
+def shoelace(openedCoords: Seq[Location]): BigInt =
+    val n = openedCoords.size
+    if n < 3 then throw new RuntimeException("Polygons must have at least three vertices")
+
+    val coords = openedCoords ++ Set(openedCoords.head)
+
+    var area = BigInt(0)
+    for i <- 0 until n do
+        area = area + BigInt(coords(i).line) * BigInt(coords(i + 1).column) - BigInt(coords(i + 1).line) * BigInt(coords(i).column)
+
+    area.abs / 2
