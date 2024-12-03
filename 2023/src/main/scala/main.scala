@@ -25,5 +25,6 @@ import scala.io.Source
         case 14 => println(day14(lines, part))
         case 15 => println(day15(lines, part))
         case 16 => println(day16(lines, part))
+        case 17 => println(day17(lines, part))
         case 18 => println(day18(lines, part))
     }
